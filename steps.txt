@@ -1,0 +1,88 @@
+## Step 1
+# Logged as root, install sudo, git, make anv vim
+apt-get install sudo git make vim
+
+## Step 2
+# Edit /etc/network/interfaces with 
+auto enp0s3
+iface enp0s3 inet static
+	address 192.168.1.1
+	gateway 192.168.1.2
+	network 192.168.1.0
+	netmask 255.255.255.252
+
+## Step 3
+# Edit /etc/ssh/sshd_config file and uncomment the port 69 line.
+# Edit /etc/ssh/sshd_config file and set the PermitRootLogin as no.
+
+## Step 4
+# Add roger and sudo to the suoder file. 
+adduser roger root
+adduser roger sudo
+
+## Step 5
+# Install sexy-bash-promt
+(cd /tmp && git clone --depth 1 --config core.autocrlf=false \
+https://github.com/twolfson/sexy-bash-prompt\
+ && cd sexy-bash-prompt && make install) && source ~/.bashrc
+
+## Step 6
+# Edit bashrc an vimrc
+
+## Step 7
+# Install iptables-persistent
+sudo apt-get install iptables-persistent
+
+## Step 8
+# Set the followings iptable rules :
+
+# Synflood protection
+/sbin/iptables -A INPUT -p tcp --syn -m limit --limit 2/s --limit-burst 30 -j ACCEPT
+
+# Pingflood protection
+/sbin/iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
+
+# Port scanning protection
+/sbin/iptables -A INPUT -p tcp --tcp-flags ALL NONE -m limit --limit 1/h -j ACCEPT
+/sbin/iptables -A INPUT -p tcp --tcp-flags ALL ALL -m limit --limit 1/h -j ACCEPT
+
+## Step 9
+# Block every ports.
+iptables --policy INPUT DROP
+
+# Allow only port 69
+sudo iptables -A INPUT -p tcp --dport 69 --jump ACCEPT
+
+## Step 10
+# Make rules persistents
+iptables-save > /etc/iptables/rules.v4
+
+## Step 11
+# Instal mail dependencies
+apt-get install mailutils
+
+## Step 12
+# Execute e script at startup
+vi /etc/systemd/system/multi-user.target.wants/updater.service
+
+[Unit]
+# By default 'simple' is used, see also https://www.freedesktop.org/software/systemd/man/systemd.service.html#Type=
+# Type=simple|forking|oneshot|dbus|notify|idle
+Description=Update package
+## make sure we only start the service after network is up
+Wants=network-online.target
+After=network.target
+
+[Service]
+## here we can set custom environment variables
+ExecStart=/root/updater.sh
+ExecStop=pkill -9 updater
+# don't use 'nobody' if your script needs to access user files
+# (if User is not set the service will run as root)
+User=root
+
+# Useful during debugging; remove it once the service is working
+StandardOutput=/var/log/lastlog
+
+[Install]
+WantedBy=multi-user.target
