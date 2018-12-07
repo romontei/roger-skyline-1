@@ -86,3 +86,7 @@ StandardOutput=/var/log/lastlog
 
 [Install]
 WantedBy=multi-user.target
+
+## Step 13
+# Add public key to VM
+ssh-copy-id -i rs1.pub roger@127.0.0.1 -p 10022
