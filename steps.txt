@@ -34,34 +34,18 @@ https://github.com/twolfson/sexy-bash-prompt\
 sudo apt-get install iptables-persistent
 
 ## Step 8
-# Set the followings iptable rules :
-
-# Synflood protection
-/sbin/iptables -A INPUT -p tcp --syn -m limit --limit 2/s --limit-burst 30 -j ACCEPT
-
-# Pingflood protection
-/sbin/iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 1/s -j ACCEPT
-
-# Port scanning protection
-/sbin/iptables -A INPUT -p tcp --tcp-flags ALL NONE -m limit --limit 1/h -j ACCEPT
-/sbin/iptables -A INPUT -p tcp --tcp-flags ALL ALL -m limit --limit 1/h -j ACCEPT
+# Execute iptables.sh script to configure iptables rules
+./iptables.sh
 
 ## Step 9
-# Block every ports.
-iptables --policy INPUT DROP
-
-# Allow only port 69
-sudo iptables -A INPUT -p tcp --dport 69 --jump ACCEPT
-
-## Step 10
 # Make rules persistents
 iptables-save > /etc/iptables/rules.v4
 
-## Step 11
+## Step 10
 # Instal mail dependencies
 apt-get install mailutils
 
-## Step 12
+## Step 11
 # Execute e script at startup
 vi /etc/systemd/system/multi-user.target.wants/updater.service
 
@@ -87,6 +71,12 @@ StandardOutput=/var/log/lastlog
 [Install]
 WantedBy=multi-user.target
 
-## Step 13
+## Step 12
 # Add public key to VM
 ssh-copy-id -i rs1.pub roger@127.0.0.1 -p 10022
+
+## Step 13
+# Configure Grub to be hidden - add following lines
+GRUB_TIMEOUT=0
+GRUB_HIDDEN_TIMEOUT=0
+GRUB_HIDDEN_TIMEOUT_QUIET=true
