@@ -43,9 +43,13 @@ iptables-save > /etc/iptables/rules.v4
 
 ## Step 10
 # Instal mail dependencies
-apt-get install mailutils
+apt-get install mailutilsi
 
 ## Step 11
+# Configure SMTP mail
+dpkg-reconfigure exim4-config
+
+## Step 12
 # Execute e script at startup
 vi /etc/systemd/system/multi-user.target.wants/updater.service
 
@@ -71,12 +75,40 @@ StandardOutput=/var/log/lastlog
 [Install]
 WantedBy=multi-user.target
 
-## Step 12
+## Step 13
 # Add public key to VM
 ssh-copy-id -i rs1.pub roger@127.0.0.1 -p 10022
 
-## Step 13
+## Step 14
+# Keep the key password - MojaveRs1
+
+## Step 15
 # Configure Grub to be hidden - add following lines
 GRUB_TIMEOUT=0
 GRUB_HIDDEN_TIMEOUT=0
 GRUB_HIDDEN_TIMEOUT_QUIET=true
+
+## Step 16 
+# Configure SSL
+# - Create folder
+mkdir /var/certs && cd /var/certs
+# - Create key
+openssl genrsa -des3 -out server.key 1024
+# - Create csr
+openssl req -new -key server.key -out server.csri
+# - Create copy
+cp server.key server.key.org
+# - Remove passphrase
+openssl rsa -in server.key.org -out server.keyi
+# - Create cert
+openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+
+## Step 17
+# Configure apache 2 SSL
+SSLOptions +FakeBasicAuth +ExportCertData +StrictRequire
+SSLCertificateFile /var/certs/server.crt
+SSLCertificateKeyFile /var/certs/server.key
+
+## Step 18
+# Enable apache2 SSL mod
+sudo a2enmod ssl
