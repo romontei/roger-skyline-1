@@ -1,7 +1,9 @@
 # roger-skyline-1
 
-Ce sujet est une initiation aux bases de l’administration système et réseau.
+Introduction to the basics of system and network administration.
 
-Ce projet permettera de procéder à l’installation d’une
-Virtual Machine, de découvrir les bases système et réseau ainsi que les nombreux services
-utilisés sur une machine serveur.
+This project will allow for the installation of a Virtual Machine,  
+to discover the system and network bases as well as the many services
+used on a server machine.
+
+Road to administrate a web server.
